@@ -1,56 +1,63 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
+import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { C, FONT, SPRING } from "../design/tokens";
+import { MOCK_SCRIPT } from "../mock";
 
 /**
- * SCENE 3 — Script Generation (9s / 270 frames)
+ * SCENE 3 — Script Writing (9s / 270 frames)
  *
- * TubeGen writes the script for the selected video idea.
+ * Narrative: TubeGen AI writes the full script section by section.
  *
- * Required elements:
- *   - A script editor / terminal-style panel
- *   - Typewriter animation as the AI writes the script
- *   - Distinct labeled sections: [HOOK], [INTRO], [MAIN], [CTA]
- *   - Word count and estimated watch time shown on completion
+ * Suggested flow:
+ *   0–15f   : Scene fade in
+ *   15–40f  : Script editor panel slides in
+ *   40–80f  : HOOK section types out
+ *   80–130f : INTRO section types out
+ *   130–200f: MAIN section types out
+ *   200–240f: CTA section types out
+ *   240–260f: Word count + "Script complete ✓" badge appears
+ *   260–270f: Scene fade out
  *
- * Example script content (abbreviated):
- *   [HOOK — 0:00]
- *   "What if I told you MrBeast's success has nothing to do with money..."
+ * Mock data: import MOCK_SCRIPT from "../mock"
  *
- *   [INTRO — 0:10]
- *   "Hey everyone, I've spent the last 3 months studying every single MrBeast
- *    video, and I found a pattern nobody's talking about..."
+ * Remotion tips:
+ *   // Typewriter for a text block
+ *   const text = "What if I told you...";
+ *   const chars = Math.floor(
+ *     interpolate(frame, [startFrame, endFrame], [0, text.length], {
+ *       extrapolateLeft: 'clamp', extrapolateRight: 'clamp'
+ *     })
+ *   );
+ *   const visible = text.slice(0, chars);
  *
- *   [MAIN POINT — 0:45]
- *   "The real secret is psychological safety loops. Every 90 seconds, he
- *    resets the tension..."
+ *   // Blinking cursor (blinks every 12 frames = ~2.5Hz)
+ *   const cursorVisible = Math.floor(frame / 12) % 2 === 0;
  *
- *   [CTA — 5:50]
- *   "If this blew your mind, subscribe — I'm dropping the full breakdown
- *    next week..."
- *
- * Tips:
- *   - Reveal script lines progressively using interpolate
- *   - Show a blinking cursor while typing is in progress
- *   - Line numbers and syntax highlighting add a lot of polish
+ *   // Reveal sections one by one — show section N only after section N-1 is done
+ *   const section1Done = chars >= section1Text.length;
  */
 export const Scene3Script: React.FC = () => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
 
   // TODO: implement Scene 3
+  void fps;
 
   return (
     <AbsoluteFill
       style={{
-        background: "#0A0A12",
+        background: C.bg,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        color: "white",
-        fontSize: 32,
-        fontFamily: "sans-serif",
+        color: C.textPrimary,
+        fontSize: 28,
+        fontFamily: FONT.family,
       }}
     >
-      Scene 3 — Script Generation (frame {frame})
+      Scene 3 — Script Writing · frame {frame}
+      <br />
+      {MOCK_SCRIPT.wordCount} words · {MOCK_SCRIPT.estimatedRuntime}
     </AbsoluteFill>
   );
 };

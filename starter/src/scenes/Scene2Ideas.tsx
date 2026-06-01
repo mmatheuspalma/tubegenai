@@ -1,46 +1,64 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
+import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { C, FONT, SPRING } from "../design/tokens";
+import { MOCK_IDEAS, SELECTED_IDEA_ID } from "../mock";
 
 /**
- * SCENE 2 — Viral Ideas (9s / 270 frames)
+ * SCENE 2 — Viral Title Generation (9s / 270 frames)
  *
- * TubeGen generates 5 viral video concepts for the analyzed channel.
+ * Narrative: TubeGen generates 5 viral video ideas for the channel.
  *
- * Required elements:
- *   - "Generating ideas..." AI loading state
- *   - 5 idea cards that appear with staggered animation
- *   - A viral score / confidence indicator on each card
- *   - One idea highlighted as the selected pick
+ * Suggested flow:
+ *   0–15f   : Scene fade in
+ *   15–60f  : "Generating viral ideas…" loading state (spinner / dots)
+ *   60–75f  : Idea card 1 slides in from right (or below)
+ *   75–90f  : Idea card 2 slides in
+ *   90–105f : Idea card 3 slides in
+ *   105–120f: Idea card 4 slides in
+ *   120–135f: Idea card 5 slides in
+ *   135–210f: Selected card (SELECTED_IDEA_ID) gets highlighted glow + border
+ *   210–240f: "Selected ✓" badge animates onto the chosen card
+ *   240–270f: Scene fade out
  *
- * Example ideas (or invent your own):
- *   - "I Spent 30 Days Doing Everything MrBeast Did"
- *   - "Every MrBeast Challenge, Ranked by Difficulty"
- *   - "What MrBeast's Team Won't Tell You"
- *   - "I Copied MrBeast's Formula for 1 Week"
- *   - "The MrBeast Effect: Why His Videos Go Viral"
+ * Mock data: import MOCK_IDEAS, SELECTED_IDEA_ID from "../mock"
  *
- * Tips:
- *   - Stagger card entries: each card starts spring at delay + i * STAGGER_FRAMES
- *   - Show a glowing border or highlight on the selected card
+ * Remotion tips:
+ *   // Staggered card entry
+ *   const STAGGER = 15; // frames between cards
+ *   MOCK_IDEAS.map((idea, i) => {
+ *     const cardProgress = spring({ frame: frame - 60 - i * STAGGER, fps, config: SPRING.smooth });
+ *     const translateX = interpolate(cardProgress, [0, 1], [60, 0]);
+ *     const opacity    = interpolate(frame - 60 - i * STAGGER, [0, 20], [0, 1], {
+ *       extrapolateLeft: 'clamp', extrapolateRight: 'clamp'
+ *     });
+ *   });
+ *
+ *   // Glow on selected card
+ *   const isSelected = idea.id === SELECTED_IDEA_ID;
+ *   const glowOpacity = interpolate(frame, [135, 165], [0, 1], { ... });
  */
 export const Scene2Ideas: React.FC = () => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
 
   // TODO: implement Scene 2
+  void fps;
 
   return (
     <AbsoluteFill
       style={{
-        background: "#0A0A12",
+        background: C.bg,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        color: "white",
-        fontSize: 32,
-        fontFamily: "sans-serif",
+        color: C.textPrimary,
+        fontSize: 28,
+        fontFamily: FONT.family,
       }}
     >
-      Scene 2 — Viral Ideas (frame {frame})
+      Scene 2 — Viral Ideas · frame {frame}
+      <br />
+      {MOCK_IDEAS.length} ideas generated · best score: {Math.max(...MOCK_IDEAS.map((i) => i.viralScore))}
     </AbsoluteFill>
   );
 };
