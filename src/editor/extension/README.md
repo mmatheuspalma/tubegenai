@@ -99,3 +99,7 @@ The starter renders frame-by-frame via `@remotion/renderer`. If your primitive d
 - **Avoid `setState` inside RemotionComponent.** Remotion components should be pure functions of `props + frame`.
 
 A 90-second render at 30fps = 2,700 frames. If each frame takes 50ms more than it should because of an unnecessary recompute, that's 2.25 extra minutes of render time. Multiply by every render iteration the candidate runs.
+
+## Smart Enhance (bonus)
+
+**Smart Enhance** is a sidebar assistant that reads `script.txt` + scene metadata and suggests registered primitives (effects, transitions, overlays) plus script-synced captions. It uses the same reducer actions as manual editing — see **[`SMART_ENHANCE.md`](./SMART_ENHANCE.md)** for usage and architecture.

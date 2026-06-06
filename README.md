@@ -16,6 +16,11 @@ npm run render       # renders the demo project to out/final.mp4
 
 A ~35s render at 30fps takes a few minutes on a laptop; plan your render-iteration time.
 
+## Demos
+
+- **[Final rendered cut](https://drive.google.com/file/d/1O1ac4vaimRYZo_271UrPKJxI5O9KZ2yU/view?usp=drive_link)** — the polished MP4 output (`out/final.mp4`)
+- **[Video editor walkthrough](https://drive.google.com/file/d/1zqoLQUnj-tWkKncwM8qMrhD9I2XwiC-7/view?usp=sharing)** — how the editor works: primitives, timeline, export, and render
+
 ## Read these, in order
 
 1. **[`CHALLENGE.md`](./CHALLENGE.md)** — the full brief: goal, deliverables, time budget, bonus.
@@ -48,7 +53,7 @@ src/
 │   ├── state.js                       Editor reducer (items, selection, duration)
 │   ├── Timeline.jsx                   Two tracks, drag-move, edge-resize, playhead
 │   ├── PropertiesPanel.jsx            Selected-item / primitive props editor
-│   ├── AssetsSidebar.jsx              Tabs: Visuals / Audio / Effects
+│   ├── AssetsSidebar.jsx              Tabs: Visuals / Audio / Effects / Overlays
 │   └── extension/
 │       ├── README.md                  ★ How to add a new primitive — read this first
 │       ├── primitives.js              Primitive registry

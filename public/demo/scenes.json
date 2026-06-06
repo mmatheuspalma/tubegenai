@@ -9,16 +9,195 @@
     "volume": 1.0
   },
 
-  { "id": "v1_01", "type": "image", "trackId": "v1", "src": "/demo/assets/visuals/001.mp4", "startFrame": 0,   "durationFrames": 97 },
-  { "id": "v1_02", "type": "image", "trackId": "v1", "src": "/demo/assets/visuals/002.mp4", "startFrame": 97,  "durationFrames": 42 },
-  { "id": "v1_03", "type": "image", "trackId": "v1", "src": "/demo/assets/visuals/003.mp4", "startFrame": 139, "durationFrames": 38 },
-  { "id": "v1_04", "type": "broll", "trackId": "v1", "src": "/demo/assets/visuals/004.mp4", "startFrame": 177, "durationFrames": 102 },
-  { "id": "v1_05", "type": "image", "trackId": "v1", "src": "/demo/assets/visuals/005.mp4", "startFrame": 279, "durationFrames": 150 },
-  { "id": "v1_06", "type": "broll", "trackId": "v1", "src": "/demo/assets/visuals/006.mp4", "startFrame": 429, "durationFrames": 103 },
-  { "id": "v1_07", "type": "image", "trackId": "v1", "src": "/demo/assets/visuals/007.mp4", "startFrame": 532, "durationFrames": 64 },
-  { "id": "v1_08", "type": "image", "trackId": "v1", "src": "/demo/assets/visuals/008.mp4", "startFrame": 596, "durationFrames": 128 },
-  { "id": "v1_09", "type": "image", "trackId": "v1", "src": "/demo/assets/visuals/009.mp4", "startFrame": 724, "durationFrames": 57 },
-  { "id": "v1_10", "type": "image", "trackId": "v1", "src": "/demo/assets/visuals/010.mp4", "startFrame": 781, "durationFrames": 59 },
-  { "id": "v1_11", "type": "image", "trackId": "v1", "src": "/demo/assets/visuals/011.mp4", "startFrame": 840, "durationFrames": 98 },
-  { "id": "v1_12", "type": "animation", "trackId": "v1", "src": "/demo/assets/visuals/012.mp4", "startFrame": 938, "durationFrames": 90 }
+  {
+    "id": "v1_01",
+    "type": "image",
+    "trackId": "v1",
+    "src": "/demo/assets/visuals/001.mp4",
+    "startFrame": 0,
+    "durationFrames": 97,
+    "effects": [
+      { "id": "kenBurns", "props": { "startScale": 1.02, "endScale": 1.14, "startX": 0, "endX": -3, "startY": 0, "endY": -1 } },
+      { "id": "colorGrade", "props": { "preset": "night" } }
+    ],
+    "transition": { "id": "crossfade", "props": { "durationFrames": 14 } }
+  },
+  {
+    "id": "v1_02",
+    "type": "image",
+    "trackId": "v1",
+    "src": "/demo/assets/visuals/002.mp4",
+    "startFrame": 97,
+    "durationFrames": 42,
+    "effects": [{ "id": "zoomOut", "props": { "startScale": 1.12, "endScale": 1.0 } }],
+    "transition": { "id": "crossfade", "props": { "durationFrames": 12 } }
+  },
+  {
+    "id": "v1_03",
+    "type": "image",
+    "trackId": "v1",
+    "src": "/demo/assets/visuals/003.mp4",
+    "startFrame": 139,
+    "durationFrames": 38,
+    "effects": [{ "id": "vignette", "props": { "intensity": 0.45, "size": 58 } }],
+    "transition": { "id": "slideLeft", "props": { "durationFrames": 16 } }
+  },
+  {
+    "id": "v1_04",
+    "type": "broll",
+    "trackId": "v1",
+    "src": "/demo/assets/visuals/004.mp4",
+    "startFrame": 177,
+    "durationFrames": 102,
+    "effects": [{ "id": "panRight", "props": { "scale": 1.15, "pan": 5 } }],
+    "transition": { "id": "fadeToBlack", "props": { "durationFrames": 18 } }
+  },
+  {
+    "id": "v1_05",
+    "type": "image",
+    "trackId": "v1",
+    "src": "/demo/assets/visuals/005.mp4",
+    "startFrame": 279,
+    "durationFrames": 150,
+    "effects": [
+      { "id": "kenBurns", "props": { "startScale": 1.04, "endScale": 1.16, "startX": 2, "endX": -5, "startY": 0, "endY": -2 } },
+      { "id": "vignette", "props": { "intensity": 0.5, "size": 52 } }
+    ],
+    "transition": { "id": "fadeToBlack", "props": { "durationFrames": 20 } }
+  },
+  {
+    "id": "v1_06",
+    "type": "broll",
+    "trackId": "v1",
+    "src": "/demo/assets/visuals/006.mp4",
+    "startFrame": 429,
+    "durationFrames": 103,
+    "effects": [{ "id": "panLeft", "props": { "scale": 1.18, "pan": 7 } }],
+    "transition": { "id": "slideLeft", "props": { "durationFrames": 18 } }
+  },
+  {
+    "id": "v1_07",
+    "type": "image",
+    "trackId": "v1",
+    "src": "/demo/assets/visuals/007.mp4",
+    "startFrame": 532,
+    "durationFrames": 64,
+    "effects": [{ "id": "colorGrade", "props": { "preset": "cool" } }],
+    "transition": { "id": "crossfade", "props": { "durationFrames": 14 } }
+  },
+  {
+    "id": "v1_08",
+    "type": "image",
+    "trackId": "v1",
+    "src": "/demo/assets/visuals/008.mp4",
+    "startFrame": 596,
+    "durationFrames": 128,
+    "effects": [{ "id": "zoomIn", "props": { "startScale": 1.0, "endScale": 1.1 } }],
+    "transition": { "id": "crossfade", "props": { "durationFrames": 15 } }
+  },
+  {
+    "id": "v1_09",
+    "type": "image",
+    "trackId": "v1",
+    "src": "/demo/assets/visuals/009.mp4",
+    "startFrame": 724,
+    "durationFrames": 57,
+    "effects": [{ "id": "kenBurns", "props": { "startScale": 1.03, "endScale": 1.11, "startX": -2, "endX": 2, "startY": 0, "endY": 0 } }],
+    "transition": { "id": "crossfade", "props": { "durationFrames": 12 } }
+  },
+  {
+    "id": "v1_10",
+    "type": "image",
+    "trackId": "v1",
+    "src": "/demo/assets/visuals/010.mp4",
+    "startFrame": 781,
+    "durationFrames": 59,
+    "effects": [{ "id": "vignette", "props": { "intensity": 0.4, "size": 60 } }],
+    "transition": { "id": "crossfade", "props": { "durationFrames": 12 } }
+  },
+  {
+    "id": "v1_11",
+    "type": "image",
+    "trackId": "v1",
+    "src": "/demo/assets/visuals/011.mp4",
+    "startFrame": 840,
+    "durationFrames": 98,
+    "effects": [{ "id": "colorGrade", "props": { "preset": "cinematic" } }],
+    "transition": { "id": "zoomBlur", "props": { "durationFrames": 22, "maxScale": 1.1, "maxBlur": 6 } }
+  },
+  {
+    "id": "v1_12",
+    "type": "animation",
+    "trackId": "v1",
+    "src": "/demo/assets/visuals/012.mp4",
+    "startFrame": 938,
+    "durationFrames": 90,
+    "effects": [{ "id": "colorGrade", "props": { "preset": "night" } }]
+  },
+
+  {
+    "id": "o_title",
+    "type": "overlay",
+    "trackId": "o1",
+    "startFrame": 0,
+    "durationFrames": 88,
+    "primitiveId": "titleCard",
+    "primitiveProps": {
+      "title": "Why Your Dog Barks at Night",
+      "subtitle": "It's not random — here's what's really going on",
+      "backgroundColor": "rgba(0,0,0,0.82)",
+      "textColor": "#FFFFFF",
+      "accentColor": "#7c5cff",
+      "enterFrames": 20,
+      "exitFrames": 16
+    }
+  },
+  {
+    "id": "o_captions",
+    "type": "overlay",
+    "trackId": "o1",
+    "startFrame": 0,
+    "durationFrames": 1033,
+    "primitiveId": "captions",
+    "primitiveProps": {
+      "segments": [
+        { "text": "When your dog barks at night", "startFrame": 0, "durationFrames": 43 },
+        { "text": "you probably think they're just being loud.", "startFrame": 43, "durationFrames": 66 },
+        { "text": "Maybe they heard something.", "startFrame": 109, "durationFrames": 41 },
+        { "text": "Maybe they're bored.", "startFrame": 150, "durationFrames": 31 },
+        { "text": "But what's actually happening is far more specific than most owners realize", "startFrame": 181, "durationFrames": 115 },
+        { "text": "and it reveals something about your dog's internal state that you've likely been misreading for years.", "startFrame": 296, "durationFrames": 156 },
+        { "text": "Dogs don't bark at night for the same reason they bark during the day.", "startFrame": 452, "durationFrames": 107 },
+        { "text": "Their brain operates differently after dark.", "startFrame": 559, "durationFrames": 67 },
+        { "text": "Canine sensory processing shifts significantly in low-light conditions.", "startFrame": 626, "durationFrames": 109 },
+        { "text": "Their hearing becomes more acute.", "startFrame": 735, "durationFrames": 51 },
+        { "text": "Their territorial instincts heighten.", "startFrame": 786, "durationFrames": 57 },
+        { "text": "And their threshold for what feels threatening drops considerably.", "startFrame": 843, "durationFrames": 101 },
+        { "text": "That random bark at two in the morning isn't random at all.", "startFrame": 944, "durationFrames": 89 }
+      ],
+      "fontSize": 30,
+      "fontFamily": "Inter, system-ui, sans-serif",
+      "textColor": "#FFFFFF",
+      "backgroundColor": "rgba(0,0,0,0.72)",
+      "bottom": 72,
+      "maxWidth": "82%",
+      "fadeFrames": 5
+    }
+  },
+  {
+    "id": "o_lower",
+    "type": "overlay",
+    "trackId": "o1",
+    "startFrame": 435,
+    "durationFrames": 90,
+    "primitiveId": "lowerThird",
+    "primitiveProps": {
+      "title": "Territorial instincts heighten",
+      "subtitle": "Their threshold for threat drops after dark",
+      "backgroundColor": "rgba(0,0,0,0.75)",
+      "textColor": "#FFFFFF",
+      "enterFrames": 14,
+      "exitFrames": 14
+    }
+  }
 ]

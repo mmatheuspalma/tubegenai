@@ -6,8 +6,8 @@
 import { AbsoluteFill, Sequence } from 'remotion';
 import { TRACK_TYPES } from '../editor/types';
 import { getPrimitive } from '../editor/extension/primitives';
-import { VideoItem } from './VideoItem';
-import { AudioTrack } from './AudioTrack';
+import { VideoItem } from './VideoItem.jsx';
+import { AudioTrack } from './AudioTrack.jsx';
 
 const sortByStart = (a, b) => a.startFrame - b.startFrame;
 

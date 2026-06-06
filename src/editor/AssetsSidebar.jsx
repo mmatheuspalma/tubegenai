@@ -6,18 +6,19 @@
 // Tabs:
 //   - Visuals  — clips on disk (browse the demo bundle).
 //   - Audio    — voiceover (and any other audio).
-//   - Effects  — primitives from the registry; clicking one opens a modal that asks
-//                which scenes to apply it to.
+//   - Effects  — effect + transition primitives; pick scenes to apply.
+//   - Overlays — overlay + sceneType primitives; place on the timeline.
 
 import { useEffect, useState } from 'react';
-import { TRACK_TYPES } from './types';
+import { FPS, ITEM_TYPES, TRACK_TYPES } from './types';
 import { itemsOnTrack } from './state';
 import { getPrimitivesByCategory } from './extension/primitives';
+import SmartSuggestPanel from './SmartSuggestPanel';
+import { applyCaptions } from './suggester/applyCaptions.js';
 
-const TABS = ['Visuals', 'Audio', 'Effects'];
+const TABS = ['Visuals', 'Audio', 'Effects', 'Overlays', 'Smart'];
 const basename = (src) => (src ? src.split('/').pop() : '');
 
-// A single asset card. Loads the media metadata to show its real duration.
 function AssetCard({ asset, kind }) {
   const [duration, setDuration] = useState(null);
 
@@ -54,8 +55,14 @@ function AssetCard({ asset, kind }) {
 export default function AssetsSidebar({ state, dispatch }) {
   const [tab, setTab] = useState('Visuals');
   const [manifest, setManifest] = useState({ visuals: [], audio: [] });
-  const [modalEffect, setModalEffect] = useState(null); // primitive awaiting scene pick
+  const [modalEffect, setModalEffect] = useState(null);
   const [picked, setPicked] = useState(() => new Set());
+  const [overlayModal, setOverlayModal] = useState(null);
+  const [overlayStart, setOverlayStart] = useState(0);
+  const [overlayDuration, setOverlayDuration] = useState(90);
+  const [smartOpen, setSmartOpen] = useState(false);
+  const [captionsLoading, setCaptionsLoading] = useState(false);
+  const [captionsMsg, setCaptionsMsg] = useState(null);
 
   useEffect(() => {
     fetch('/demo/manifest.json')
@@ -64,11 +71,8 @@ export default function AssetsSidebar({ state, dispatch }) {
       .catch(() => {});
   }, []);
 
-  // Scenes the effect can target = items on the Visuals track, in timeline order.
   const scenes = itemsOnTrack(state, TRACK_TYPES.V1);
 
-  // A primitive may declare `canApply(scene, nextScene)` to restrict where it's
-  // valid (e.g. crossfade only at an image→image boundary). No predicate = anywhere.
   const eligible = (primitive, i) =>
     primitive.canApply ? !!primitive.canApply(scenes[i], scenes[i + 1]) : true;
   const eligibleIds = (primitive) =>
@@ -76,7 +80,7 @@ export default function AssetsSidebar({ state, dispatch }) {
 
   const openEffectModal = (primitive) => {
     setModalEffect(primitive);
-    setPicked(new Set(eligibleIds(primitive))); // default: all eligible scenes
+    setPicked(new Set(eligibleIds(primitive)));
   };
   const closeModal = () => setModalEffect(null);
 
@@ -108,8 +112,58 @@ export default function AssetsSidebar({ state, dispatch }) {
     closeModal();
   };
 
+  const openOverlayModal = (primitive) => {
+    setOverlayModal(primitive);
+    setOverlayStart(0);
+    setOverlayDuration(Math.min(90, state.durationFrames || 90));
+  };
+
+  const addOverlay = () => {
+    if (!overlayModal) return;
+    const itemType =
+      overlayModal.category === 'sceneType' ? ITEM_TYPES.SCENE_TYPE : ITEM_TYPES.OVERLAY;
+    dispatch({
+      type: 'ADD_ITEM',
+      item: {
+        type: itemType,
+        trackId: TRACK_TYPES.O1,
+        startFrame: overlayStart,
+        durationFrames: overlayDuration,
+        primitiveId: overlayModal.id,
+        primitiveProps: { ...overlayModal.defaultProps },
+      },
+    });
+    setOverlayModal(null);
+  };
+
+  const generateCaptions = async () => {
+    setCaptionsLoading(true);
+    setCaptionsMsg(null);
+    try {
+      const count = await applyCaptions(
+        dispatch,
+        state.items,
+        state.durationFrames,
+        scenes
+      );
+      setCaptionsMsg(`Added ${count} caption lines synced to the voiceover.`);
+    } catch (err) {
+      setCaptionsMsg(err.message);
+    } finally {
+      setCaptionsLoading(false);
+    }
+  };
+
   return (
     <aside className="assets-sidebar">
+      <div className="sidebar-brand">
+        <span className="sidebar-logo">TG</span>
+        <div className="sidebar-brand-text">
+          <span className="sidebar-title">TubeGen</span>
+          <span className="sidebar-subtitle">Video Editor</span>
+        </div>
+      </div>
+
       <div className="tabs">
         {TABS.map((t) => (
           <button
@@ -142,16 +196,87 @@ export default function AssetsSidebar({ state, dispatch }) {
 
       {tab === 'Effects' && (
         <div className="effects-list">
-          <p className="muted">Pick an effect, then choose which scenes to apply it to.</p>
-          {['effect', 'transition'].flatMap((cat) =>
-            getPrimitivesByCategory(cat).map((p) => (
-              <button key={p.id} className="effect-item" onClick={() => openEffectModal(p)}>
-                <span className="effect-cat">{p.category}</span>
-                <span className="effect-label">{p.label}</span>
-              </button>
-            ))
-          )}
+          <p className="muted">Apply to one or more scenes on the Visuals track.</p>
+          {[
+            { cat: 'effect', label: 'Camera & look' },
+            { cat: 'transition', label: 'Transitions' },
+          ].map(({ cat, label }) => (
+            <div key={cat} className="effects-group">
+              <h4 className="effects-group-title">{label}</h4>
+              {getPrimitivesByCategory(cat).map((p) => (
+                <button key={p.id} className="effect-item" onClick={() => openEffectModal(p)}>
+                  <span className={`effect-cat effect-cat--${p.category}`}>{p.category}</span>
+                  <span className="effect-label">{p.label}</span>
+                </button>
+              ))}
+            </div>
+          ))}
         </div>
+      )}
+
+      {tab === 'Overlays' && (
+        <div className="effects-list">
+          <p className="muted">Place on the Overlays track at a specific time.</p>
+          {[
+            { cat: 'overlay', label: 'Overlays' },
+            { cat: 'sceneType', label: 'Scene types' },
+          ].map(({ cat, label }) => (
+            <div key={cat} className="effects-group">
+              <h4 className="effects-group-title">{label}</h4>
+              {getPrimitivesByCategory(cat).map((p) => (
+                <button key={p.id} className="effect-item" onClick={() => openOverlayModal(p)}>
+                  <span className={`effect-cat effect-cat--${p.category}`}>{p.category}</span>
+                  <span className="effect-label">{p.label}</span>
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tab === 'Smart' && (
+        <div className="smart-tab">
+          <p className="muted">
+            Content-aware editing: analyzes the voiceover script and scene types, then
+            suggests effects, transitions, and overlays for your review.
+          </p>
+          <ul className="smart-tab-list">
+            <li>Maps script beats to each scene by duration</li>
+            <li>AI mode with an OpenAI key, or offline heuristics</li>
+            <li>Nothing applies until you confirm</li>
+          </ul>
+          <button
+            className="btn-primary smart-tab-btn"
+            disabled={scenes.length === 0}
+            onClick={() => setSmartOpen(true)}
+          >
+            Open Smart Enhance
+          </button>
+
+          <div className="smart-divider" />
+
+          <h4 className="effects-group-title">Captions from script</h4>
+          <p className="muted smart-caption-hint">
+            Builds synced caption lines from <code>script.txt</code>, timed to the
+            voiceover. Replaces any existing Captions overlay.
+          </p>
+          <button
+            className="btn-secondary smart-tab-btn"
+            disabled={captionsLoading || state.durationFrames === 0}
+            onClick={generateCaptions}
+          >
+            {captionsLoading ? 'Generating…' : 'Generate captions'}
+          </button>
+          {captionsMsg && <p className="smart-caption-msg">{captionsMsg}</p>}
+        </div>
+      )}
+
+      {smartOpen && (
+        <SmartSuggestPanel
+          scenes={scenes}
+          dispatch={dispatch}
+          onClose={() => setSmartOpen(false)}
+        />
       )}
 
       {modalEffect && (
@@ -162,10 +287,9 @@ export default function AssetsSidebar({ state, dispatch }) {
               <span className="muted">{picked.size} selected</span>
             </header>
 
-            {modalEffect.category === 'transition' && (
+            {modalEffect.category === 'transition' && modalEffect.id === 'crossfade' && (
               <p className="muted">
-                Crossfade only applies at the end of an image scene whose next scene is
-                also an image — other scenes are disabled.
+                Crossfade only applies at image→image boundaries — other scenes are disabled.
               </p>
             )}
 
@@ -205,6 +329,46 @@ export default function AssetsSidebar({ state, dispatch }) {
               >
                 Apply to {picked.size} scene{picked.size === 1 ? '' : 's'}
               </button>
+            </footer>
+          </div>
+        </div>
+      )}
+
+      {overlayModal && (
+        <div className="modal-overlay" onClick={() => setOverlayModal(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <header className="modal-head">
+              <h3>Add “{overlayModal.label}”</h3>
+            </header>
+            <div className="props-form" style={{ padding: '0 16px' }}>
+              <label>
+                Start frame
+                <input
+                  type="number"
+                  min="0"
+                  max={state.durationFrames}
+                  value={overlayStart}
+                  onChange={(e) => setOverlayStart(parseInt(e.target.value, 10) || 0)}
+                />
+              </label>
+              <label>
+                Start time
+                <span>{(overlayStart / FPS).toFixed(2)}s</span>
+              </label>
+              <label>
+                Duration (frames)
+                <input
+                  type="number"
+                  min="15"
+                  max={state.durationFrames}
+                  value={overlayDuration}
+                  onChange={(e) => setOverlayDuration(parseInt(e.target.value, 10) || 15)}
+                />
+              </label>
+            </div>
+            <footer className="modal-foot">
+              <button className="btn-secondary" onClick={() => setOverlayModal(null)}>Cancel</button>
+              <button className="btn-primary" onClick={addOverlay}>Add to timeline</button>
             </footer>
           </div>
         </div>

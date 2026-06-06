@@ -1,5 +1,5 @@
 import { Composition } from 'remotion';
-import { MainComposition } from './MainComposition';
+import { MainComposition } from './MainComposition.jsx';
 import { ASPECT_RATIOS, FPS } from '../editor/types';
 import scenes from '../../public/demo/scenes.json';
 

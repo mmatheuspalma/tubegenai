@@ -72,7 +72,11 @@ export function reducer(state, action) {
       // action.itemId, action.primitiveId, action.props
       const items = state.items.map((i) => {
         if (i.id !== action.itemId) return i;
-        const effects = [...(i.effects ?? []), { id: action.primitiveId, props: action.props }];
+        const effects = [...(i.effects ?? [])];
+        const idx = effects.findIndex((e) => e.id === action.primitiveId);
+        const entry = { id: action.primitiveId, props: action.props };
+        if (idx >= 0) effects[idx] = entry;
+        else effects.push(entry);
         return { ...i, effects };
       });
       return { ...state, items };

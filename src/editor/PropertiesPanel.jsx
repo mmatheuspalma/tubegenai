@@ -23,13 +23,20 @@ export default function PropertiesPanel({ state, dispatch }) {
   if (!item) {
     return (
       <aside className="properties-panel">
-        <p className="muted">Select a clip to edit its properties.</p>
+        <div className="pp-empty">
+          <p className="pp-empty-title">No clip selected</p>
+          <p className="pp-empty-hint">
+            Click a scene, overlay, or audio clip on the timeline to edit its properties,
+            effects, and transitions.
+          </p>
+        </div>
       </aside>
     );
   }
 
   const patch = (p) => dispatch({ type: 'UPDATE_ITEM', id: item.id, patch: p });
   const isAudio = AUDIO_TYPES.has(item.type);
+  const primitive = item.primitiveId ? getPrimitive(item.primitiveId) : null;
   const seconds = (frames) => (frames / FPS).toFixed(2);
 
   // Effect editor → patch the matching effects[] entry.
@@ -47,19 +54,47 @@ export default function PropertiesPanel({ state, dispatch }) {
   return (
     <aside className="properties-panel">
       <header className="pp-header">
-        <span className="pp-title">{basename(item.src) || item.type}</span>
+        <span className="pp-title">{primitive?.label || basename(item.src) || item.type}</span>
         <span className="pp-type">{item.type}</span>
       </header>
 
       <section className="props-form">
-        <div className="pp-row">
-          <span>Start</span>
-          <span>{item.startFrame} f · {seconds(item.startFrame)}s</span>
-        </div>
-        <div className="pp-row">
-          <span>Duration</span>
-          <span>{item.durationFrames} f · {seconds(item.durationFrames)}s</span>
-        </div>
+        {PRIMITIVE_ITEM_TYPES.has(item.type) ? (
+          <>
+            <label>
+              Start frame
+              <input
+                type="number"
+                min="0"
+                value={item.startFrame}
+                onChange={(e) => patch({ startFrame: parseInt(e.target.value, 10) || 0 })}
+              />
+            </label>
+            <label>
+              Duration (frames)
+              <input
+                type="number"
+                min="15"
+                value={item.durationFrames}
+                onChange={(e) => patch({ durationFrames: parseInt(e.target.value, 10) || 15 })}
+              />
+            </label>
+            <button className="pp-remove" onClick={() => dispatch({ type: 'REMOVE_ITEM', id: item.id })}>
+              Remove overlay
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="pp-row">
+              <span>Start</span>
+              <span>{item.startFrame} f · {seconds(item.startFrame)}s</span>
+            </div>
+            <div className="pp-row">
+              <span>Duration</span>
+              <span>{item.durationFrames} f · {seconds(item.durationFrames)}s</span>
+            </div>
+          </>
+        )}
         <p className="pp-hint">
           {seconds(item.startFrame)}s → {seconds(item.startFrame + item.durationFrames)}s
         </p>

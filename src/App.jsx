@@ -8,8 +8,6 @@
 //   │  Sidebar   │           Timeline             │   Panel    │
 //   └────────────┴───────────────────────────────┴────────────┘
 //
-// TODO: wire up the <Player> for live preview. See @remotion/player docs.
-
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { Player } from '@remotion/player';
 import { reducer, initialState } from './editor/state';
@@ -65,6 +63,30 @@ export default function App() {
     playerRef.current?.seekTo(frame);
   };
 
+  const [exportHint, setExportHint] = useState(null);
+
+  const exportProject = () => {
+    const json = JSON.stringify(state.items, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'scenes.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    setExportHint(
+      'Exported scenes.json — run: npm run render -- --save ~/Downloads/scenes.json'
+    );
+  };
+
+  const fmtTimecode = (frames) => {
+    const s = frames / FPS;
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    const fr = Math.floor(frames % FPS);
+    return `${m}:${String(sec).padStart(2, '0')}:${String(fr).padStart(2, '0')}`;
+  };
+
   const { width, height } = ASPECT_RATIOS[state.aspectRatio];
 
   return (
@@ -72,8 +94,33 @@ export default function App() {
       <AssetsSidebar state={state} dispatch={dispatch} />
 
       <main className="stage">
+        <header className="stage-header">
+          <div className="stage-header-left">
+            <span className="stage-project">Demo project</span>
+            {state.durationFrames > 0 && (
+              <span className="stage-timecode">
+                {fmtTimecode(currentFrame)}
+                <span className="stage-timecode-sep"> / </span>
+                {fmtTimecode(state.durationFrames)}
+              </span>
+            )}
+          </div>
+          <button
+            className="btn-export"
+            onClick={exportProject}
+            disabled={state.durationFrames === 0}
+            title="Download scenes.json, then npm run render -- --save path/to/scenes.json"
+          >
+            Export for render
+          </button>
+        </header>
+        {exportHint && (
+          <p className="export-hint" role="status">
+            {exportHint}
+          </p>
+        )}
         <div className="preview">
-          {state.durationFrames > 0 && (
+          {state.durationFrames > 0 ? (
             <Player
               ref={playerRef}
               component={MainComposition}
@@ -85,6 +132,8 @@ export default function App() {
               controls
               inputProps={{ items: state.items, aspectRatio: state.aspectRatio }}
             />
+          ) : (
+            <p className="preview-loading">Loading project…</p>
           )}
         </div>
         <Timeline
